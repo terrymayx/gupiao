@@ -1,0 +1,37 @@
+{
+  "status": "success",
+  "provider": "deepseek",
+  "answer": "股东人数（Shareholders）数据补充报告\n项目状态：⚠️ 部分可确认，区间内日频数据未完整覆盖\n已确认事实\n\n1. 2026-02-28（期末）股东户数：66,080户\n\n截至2026年2月28日，北部湾港A股股东总户数为66,080户，较上期增加3,728户，增幅5.98%。-\n-\n2\n-\n14\n\n来源：中财网股东户数页面、新浪财经\n\n查询时间：2026-08-19\n\n2. 2026-03-31（期末）股东户数：67,489户\n\n截至2026年3月31日，北部湾港A股股东总户数为67,489户，较上期（2026-02-28）增加1,409户，增幅2.13%。-\n-\n2\n-\n26\n\n来源URL：https://data.eastmoney.com/stockcalendar/000582.html[reference:8]\n\n页面标题：北部湾港(000582)个股日历\n\n查询时间：2026-08-19\n\n公司于2026年4月28日公布该数据（2026年一季报披露日）。-\n-\n26\n\n3. 2026-05-08（收盘）股东户数：101,096户\n\n截至2026年5月8日收盘，公司股东人数为101,096户。-\n-\n28\n\n来源URL：https://irm.cninfo.com.cn/ircs/question/questionDetail?questionId=2263919087842467840[reference:13]\n\n页面标题：问答（巨潮资讯网投资者互动平台）\n\n查询时间：2026-08-19\n\n4. 2026-06-30（期末）股东户数：87,802户\n\n截至2026年6月30日，北部湾港A股股东总户数为87,802户（约8.78万户），较上期（2026-03-31）增加20,313户，增幅30.10%。-\n-\n1\n-\n2\n-\n6\n-\n26\n\n来源URL：https://finance.eastmoney.com/a/202608183844096576.html[reference:22]\n\n页面标题：北部湾港(000582.SZ)：2026年中报净利润为5.58亿元、同比较去年同期上涨5.09%\n\n查询时间：2026-08-19\n\n公司于2026年8月18日公布该数据（2026年中报披露日）。-\n-\n6\n\n5. 公司股东人数披露规则确认\n\n北部湾港在深交所互动易平台多次回复投资者：公司已在定期报告中披露相关股东人数，具体详见巨潮资讯网公司相关公告。-\n\n来源URL：https://finance.eastmoney.com/a/202602262832920551.html（东方财富）\n\n页面标题：北部湾港：公司已在定期报告中披露相关股东人数\n\n查询时间：2026-08-19\n\n未找到\n\n2026-02-17至2026-08-19期间每个交易日的日频股东人数数据未找到。\n\n股东人数属于定期报告披露数据（季报、中报、年报），并非每个交易日公布-\n。公司仅在定期报告（季度末、半年末、年末）及少数互动易回复中披露股东人数。\n\n在本区间内，公开可查的股东人数数据仅覆盖以下时间点：\n\n2026-02-28（66,080户）\n\n2026-03-31（67,489户）\n\n2026-05-08（101,096户）\n\n2026-06-30（87,802户）\n\n不存在可供下载的2026-02-17至2026-08-19完整日频股东人数历史序列。\n\nshareholders.csv文件存在但行数为0，说明此前未成功获取该数据。\n\n推断与建议\n\n推断：股东人数并非每日公布的数据，A股上市公司通常仅在定期报告（季报、中报、年报）中披露期末股东户数，部分公司会在互动易平台不定期回复投资者关于股东人数的提问。因此，shareholders.csv期望的日频数据在公开渠道本身就不存在。\n\n建议：\n\n如需完整的股东人数历史数据，可通过东方财富数据中心（data.eastmoney.com/gdhs/detail/000582.html）获取各报告期末的股东户数数据-\n6\n。\n\n股东人数数据的合理粒度应为季度末/半年末/年末，而非交易日。建议调整数据采集逻辑，按定期报告披露日期获取数据。\n\n如需更频繁的股东人数变化跟踪，可关注深交所互动易平台（irm.cninfo.com.cn）上公司对投资者的回复-\n28\n。\n\n总结\n缺失项目\t状态\t说明\n股东人数（shareholders）\t⚠️ 部分可确认\t已确认4个时间点的股东人数（2026-02-28、2026-03-31、2026-05-08、2026-06-30），但完整日频数据在公开渠道不存在\n核心结论\n\n股东人数数据：已确认本区间内4个时间点的股东人数事实，均有公开来源可查。但股东人数属于定期报告披露数据，并非每日公布，因此不存在2026-02-17至2026-08-19的完整日频股东人数历史数据。建议将数据粒度调整为按报告期（季度/半年度/年度）采集，而非按交易日。\n\n注：以上均基于公开网页查询结果。本人未修改任何本地CSV文件，仅提供数据补充报告。",
+  "sources": [
+    {
+      "title": "https://data.eastmoney.com/stockcalendar/000582.html[reference:8",
+      "url": "https://data.eastmoney.com/stockcalendar/000582.html[reference:8"
+    },
+    {
+      "title": "https://irm.cninfo.com.cn/ircs/question/questionDetail?questionId=2263919087842467840[reference:13",
+      "url": "https://irm.cninfo.com.cn/ircs/question/questionDetail?questionId=2263919087842467840[reference:13"
+    },
+    {
+      "title": "https://finance.eastmoney.com/a/202608183844096576.html[reference:22",
+      "url": "https://finance.eastmoney.com/a/202608183844096576.html[reference:22"
+    },
+    {
+      "title": "https://finance.eastmoney.com/a/202602262832920551.html（东方财富）",
+      "url": "https://finance.eastmoney.com/a/202602262832920551.html（东方财富）"
+    }
+  ],
+  "missing": [
+    {
+      "name": "股东人数",
+      "reason": "shareholders: AttributeError: 'NoneType' object has no attribute 'write'",
+      "file_name": "shareholders.csv",
+      "rows": 0
+    }
+  ],
+  "error": null,
+  "collected_at": "2026-08-19T15:07:16+00:00",
+  "stock_code": "000582",
+  "stock_name": "000582",
+  "begin": "2026-02-17",
+  "end": "2026-08-19"
+}

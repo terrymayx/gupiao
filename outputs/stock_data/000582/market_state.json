@@ -1,0 +1,128 @@
+{
+  "announcement_rows": 437,
+  "calendar_rows": 8707,
+  "corporate_action_all_file": "corporate_actions_all.csv",
+  "corporate_action_all_rows": 19,
+  "corporate_action_rows": 14,
+  "daily_quote_quality_rows": 2588,
+  "daily_quote_rows": 2438,
+  "data_coverage": {
+    "announcement_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 437
+    },
+    "breadth_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 2588
+    },
+    "calendar_rows": {
+      "begin": "1990-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 8707
+    },
+    "corporate_action_rows": {
+      "begin": "1990-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 14
+    },
+    "etf_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 1755
+    },
+    "index_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 10328
+    },
+    "industry_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 66
+    },
+    "kline_daily": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 2438
+    },
+    "listing_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 1
+    },
+    "peer_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 25131
+    },
+    "relative_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 2438
+    },
+    "risk_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 1
+    },
+    "suspension_rows": {
+      "begin": "2016-01-01",
+      "end": "2026-08-19",
+      "refreshes_today": true,
+      "rows": 1
+    }
+  },
+  "data_quality_report_rows": 7,
+  "errors": [
+    "peer-discovery:BK0450: ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+    "shareholders: AttributeError: 'NoneType' object has no attribute 'write'",
+    "announcement_events: KeyError: '000582'"
+  ],
+  "etf_codes": [
+    "sz159666",
+    "sz159662",
+    "sz516910"
+  ],
+  "finance_rows": 113,
+  "financial_metrics_rows": 113,
+  "industry_name": "港口航运",
+  "industry_symbol": "BK0450",
+  "institution_rows": 980,
+  "kline_end": "2026-08-19",
+  "kline_rows": 2438,
+  "kline_start": "2016-01-01",
+  "listing_rows": 1,
+  "peer_codes": [
+    "sh601872",
+    "sh600026",
+    "sh601919",
+    "sh601018",
+    "sh600018",
+    "sz000905",
+    "sz001872",
+    "sh600017",
+    "sh601228",
+    "sh600428"
+  ],
+  "quote_rows": 1,
+  "risk_rows": 1,
+  "status": "partial",
+  "suspension_rows": 1,
+  "symbol": "000582",
+  "valuation_history_rows": 2438,
+  "valuation_rows": 1
+}
