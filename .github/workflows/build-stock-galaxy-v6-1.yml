@@ -23,47 +23,28 @@ jobs:
       - name: Reassemble and decode project source
         shell: pwsh
         run: |
-          $parts = Get-ChildItem 'build/stock-galaxy-v6.1-exe/source.part*.b64' | Sort-Object Name
-          if ($parts.Count -ne 10) { throw "Expected 10 source chunks, found $($parts.Count)" }
+          $dir = 'build/stock-galaxy-v6.1-exe'
+          $ordered = @(
+            'source.part00.b64','source.part01.b64','source.part02.b64',
+            'source.part03a.b64','source.part03b.b64','source.part03c.b64','source.part03d.b64',
+            'source.part04.b64','source.part05.b64','source.part06.b64','source.part07.b64',
+            'source.part08.b64','source.part09.b64'
+          )
 
           $pieces = @()
-          foreach ($part in $parts) {
-            $text = Get-Content $part.FullName -Raw
+          foreach ($name in $ordered) {
+            $path = Join-Path $dir $name
+            if (-not (Test-Path $path)) { throw "Missing source chunk: $name" }
+            $text = Get-Content $path -Raw
             $text = [regex]::Replace($text, '[^A-Za-z0-9+/=]', '')
+            if ($name -like 'source.part03?.b64') {
+              if ($text.Length -ne 1750) { throw "$name length $($text.Length), expected 1750" }
+            }
             $pieces += $text
           }
 
-          # part03 was transferred with one extra valid Base64 character. Recover the exact
-          # original 7000-character chunk by its locally verified SHA-256.
-          $expectedPart03 = 'e6800f3a7e532296e71f59f4e95ae377db6bdfb9214ff52849f4dc4d9e674e7c'
-          function Get-AsciiSha256([string]$text) {
-            $sha = [System.Security.Cryptography.SHA256]::Create()
-            try {
-              $bytes = [System.Text.Encoding]::ASCII.GetBytes($text)
-              $hash = $sha.ComputeHash($bytes)
-              return ([System.BitConverter]::ToString($hash)).Replace('-', '').ToLowerInvariant()
-            } finally {
-              $sha.Dispose()
-            }
-          }
-
-          if ((Get-AsciiSha256 $pieces[3]) -ne $expectedPart03) {
-            if ($pieces[3].Length -ne 7001) { throw "part03 unexpected length $($pieces[3].Length)" }
-            $fixed = $null
-            for ($i = 0; $i -lt $pieces[3].Length; $i++) {
-              $candidate = $pieces[3].Remove($i, 1)
-              if ((Get-AsciiSha256 $candidate) -eq $expectedPart03) {
-                $fixed = $candidate
-                Write-Host "Recovered part03 by removing character at index $i"
-                break
-              }
-            }
-            if ($null -eq $fixed) { throw 'Could not recover exact part03 chunk' }
-            $pieces[3] = $fixed
-          }
-
           $clean = $pieces -join ''
-          Write-Host "Parts: $($parts.Count), clean chars: $($clean.Length)"
+          Write-Host "Source pieces: $($ordered.Count), clean chars: $($clean.Length)"
           if ($clean.Length -ne 66400) { throw "Unexpected base64 length: $($clean.Length), expected 66400" }
 
           [IO.File]::WriteAllBytes('stock-galaxy-source.zip', [Convert]::FromBase64String($clean))
