@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - build/stock-galaxy-v6.1-exe
-    paths:
-      - build/stock-galaxy-v6.1-exe/source.part*.b64
-      - .github/workflows/build-stock-galaxy-v6-1.yml
   workflow_dispatch:
 
 jobs:
