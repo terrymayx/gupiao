@@ -22,14 +22,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: build/stock-galaxy-v6.1-exe/source.b64
 
       - name: Decode project source
         shell: pwsh
         run: |
           $b64 = Get-Content 'build/stock-galaxy-v6.1-exe/source.b64' -Raw
-          [IO.File]::WriteAllBytes('stock-galaxy-source.zip', [Convert]::FromBase64String($b64.Trim()))
+          $clean = [regex]::Replace($b64, '[^A-Za-z0-9+/=]', '')
+          Write-Host "Base64 chars: $($b64.Length), cleaned: $($clean.Length)"
+          [IO.File]::WriteAllBytes('stock-galaxy-source.zip', [Convert]::FromBase64String($clean))
+          Write-Host "ZIP bytes: $((Get-Item stock-galaxy-source.zip).Length)"
           Expand-Archive -Path 'stock-galaxy-source.zip' -DestinationPath 'stock-galaxy-source' -Force
 
       - name: Set portable EXE filename
