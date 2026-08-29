@@ -25,12 +25,54 @@ jobs:
         run: |
           $parts = Get-ChildItem 'build/stock-galaxy-v6.1-exe/source.part*.b64' | Sort-Object Name
           if ($parts.Count -ne 10) { throw "Expected 10 source chunks, found $($parts.Count)" }
-          $joined = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
-          $clean = [regex]::Replace($joined, '[^A-Za-z0-9+/=]', '')
-          Write-Host "Parts: $($parts.Count), joined chars: $($joined.Length), clean chars: $($clean.Length)"
+
+          $pieces = @()
+          foreach ($part in $parts) {
+            $text = Get-Content $part.FullName -Raw
+            $text = [regex]::Replace($text, '[^A-Za-z0-9+/=]', '')
+            $pieces += $text
+          }
+
+          # part03 was transferred with one extra valid Base64 character. Recover the exact
+          # original 7000-character chunk by its locally verified SHA-256.
+          $expectedPart03 = 'e6800f3a7e532296e71f59f4e95ae377db6bdfb9214ff52849f4dc4d9e674e7c'
+          function Get-AsciiSha256([string]$text) {
+            $sha = [System.Security.Cryptography.SHA256]::Create()
+            try {
+              $bytes = [System.Text.Encoding]::ASCII.GetBytes($text)
+              $hash = $sha.ComputeHash($bytes)
+              return ([System.BitConverter]::ToString($hash)).Replace('-', '').ToLowerInvariant()
+            } finally {
+              $sha.Dispose()
+            }
+          }
+
+          if ((Get-AsciiSha256 $pieces[3]) -ne $expectedPart03) {
+            if ($pieces[3].Length -ne 7001) { throw "part03 unexpected length $($pieces[3].Length)" }
+            $fixed = $null
+            for ($i = 0; $i -lt $pieces[3].Length; $i++) {
+              $candidate = $pieces[3].Remove($i, 1)
+              if ((Get-AsciiSha256 $candidate) -eq $expectedPart03) {
+                $fixed = $candidate
+                Write-Host "Recovered part03 by removing character at index $i"
+                break
+              }
+            }
+            if ($null -eq $fixed) { throw 'Could not recover exact part03 chunk' }
+            $pieces[3] = $fixed
+          }
+
+          $clean = $pieces -join ''
+          Write-Host "Parts: $($parts.Count), clean chars: $($clean.Length)"
           if ($clean.Length -ne 66400) { throw "Unexpected base64 length: $($clean.Length), expected 66400" }
+
           [IO.File]::WriteAllBytes('stock-galaxy-source.zip', [Convert]::FromBase64String($clean))
-          Write-Host "ZIP bytes: $((Get-Item stock-galaxy-source.zip).Length)"
+          $zipHash = (Get-FileHash 'stock-galaxy-source.zip' -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "ZIP bytes: $((Get-Item stock-galaxy-source.zip).Length), SHA256: $zipHash"
+          if ($zipHash -ne '00e8d2175972e08288b28a2068fc388f218e026975f5aa9ff6b18de355a2a0d3') {
+            throw "Decoded ZIP hash mismatch: $zipHash"
+          }
+
           Expand-Archive -Path 'stock-galaxy-source.zip' -DestinationPath 'stock-galaxy-source' -Force
           if (-not (Test-Path 'stock-galaxy-source/StockGalaxyDesktop_v6_1_real_sector_flow/package.json')) {
             throw 'Decoded project package.json not found'
