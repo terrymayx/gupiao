@@ -5,7 +5,7 @@ on:
     branches:
       - build/stock-galaxy-v6.1-exe
     paths:
-      - build/stock-galaxy-v6.1-exe/source.b64
+      - build/stock-galaxy-v6.1-exe/source.part*.b64
       - .github/workflows/build-stock-galaxy-v6-1.yml
   workflow_dispatch:
 
@@ -23,15 +23,21 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Decode project source
+      - name: Reassemble and decode project source
         shell: pwsh
         run: |
-          $b64 = Get-Content 'build/stock-galaxy-v6.1-exe/source.b64' -Raw
-          $clean = [regex]::Replace($b64, '[^A-Za-z0-9+/=]', '')
-          Write-Host "Base64 chars: $($b64.Length), cleaned: $($clean.Length)"
+          $parts = Get-ChildItem 'build/stock-galaxy-v6.1-exe/source.part*.b64' | Sort-Object Name
+          if ($parts.Count -ne 10) { throw "Expected 10 source chunks, found $($parts.Count)" }
+          $joined = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
+          $clean = [regex]::Replace($joined, '[^A-Za-z0-9+/=]', '')
+          Write-Host "Parts: $($parts.Count), joined chars: $($joined.Length), clean chars: $($clean.Length)"
+          if ($clean.Length -ne 66400) { throw "Unexpected base64 length: $($clean.Length), expected 66400" }
           [IO.File]::WriteAllBytes('stock-galaxy-source.zip', [Convert]::FromBase64String($clean))
           Write-Host "ZIP bytes: $((Get-Item stock-galaxy-source.zip).Length)"
           Expand-Archive -Path 'stock-galaxy-source.zip' -DestinationPath 'stock-galaxy-source' -Force
+          if (-not (Test-Path 'stock-galaxy-source/StockGalaxyDesktop_v6_1_real_sector_flow/package.json')) {
+            throw 'Decoded project package.json not found'
+          }
 
       - name: Set portable EXE filename
         shell: pwsh
