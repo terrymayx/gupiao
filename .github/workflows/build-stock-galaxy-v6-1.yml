@@ -1,0 +1,65 @@
+name: Build Stock Galaxy V6.1 EXE
+
+on:
+  push:
+    branches:
+      - build/stock-galaxy-v6.1-exe
+    paths:
+      - build/stock-galaxy-v6.1-exe/source.b64
+      - .github/workflows/build-stock-galaxy-v6-1.yml
+  workflow_dispatch:
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: build/stock-galaxy-v6.1-exe/source.b64
+
+      - name: Decode project source
+        shell: pwsh
+        run: |
+          $b64 = Get-Content 'build/stock-galaxy-v6.1-exe/source.b64' -Raw
+          [IO.File]::WriteAllBytes('stock-galaxy-source.zip', [Convert]::FromBase64String($b64.Trim()))
+          Expand-Archive -Path 'stock-galaxy-source.zip' -DestinationPath 'stock-galaxy-source' -Force
+
+      - name: Set portable EXE filename
+        shell: pwsh
+        working-directory: stock-galaxy-source/StockGalaxyDesktop_v6_1_real_sector_flow
+        run: |
+          $pkg = Get-Content package.json -Raw | ConvertFrom-Json
+          $pkg.build | Add-Member -NotePropertyName artifactName -NotePropertyValue 'StockGalaxy-V6.1-Portable.exe' -Force
+          $pkg | ConvertTo-Json -Depth 30 | Set-Content package.json -Encoding utf8
+
+      - name: Install dependencies
+        working-directory: stock-galaxy-source/StockGalaxyDesktop_v6_1_real_sector_flow
+        run: npm install --no-audit --no-fund
+
+      - name: Run bridge tests
+        working-directory: stock-galaxy-source/StockGalaxyDesktop_v6_1_real_sector_flow
+        run: |
+          npm run bridge:smoke
+          npm run sector:test
+
+      - name: Build Windows portable EXE
+        working-directory: stock-galaxy-source/StockGalaxyDesktop_v6_1_real_sector_flow
+        run: npm run pack:win -- --x64
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: StockGalaxy-V6.1-Windows-EXE
+          path: stock-galaxy-source/StockGalaxyDesktop_v6_1_real_sector_flow/dist/*.exe
+          if-no-files-found: error
+          retention-days: 7
