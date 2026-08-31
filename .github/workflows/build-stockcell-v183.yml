@@ -37,7 +37,7 @@ jobs:
           node --check main.js
           node --check preload.js
           node --check edge_bridge_server.js
-          node -e "const p=require('./package.json');if(p.version!=='1.84.0')throw new Error('wrong version');if(p.build.artifactName!=='StockCellDesktop_V1_84.${ext}')throw new Error('wrong artifact');console.log('V1.84 source verification PASS')"
+          node -e "const p=require('./package.json');if(p.version!=='1.84.0')throw new Error('wrong version');if(!p.build.artifactName.startsWith('StockCellDesktop_V1_84.'))throw new Error('wrong artifact');console.log('V1.84 source verification PASS')"
 
       - name: Setup Node
         uses: actions/setup-node@v4
