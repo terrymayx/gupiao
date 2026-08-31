@@ -1,0 +1,58 @@
+name: Build StockCell V1.83 Windows EXE
+
+on:
+  push:
+    branches:
+      - build-stockcell-v183
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore build source
+        shell: pwsh
+        run: |
+          $parts = Get-ChildItem "stockcell-build-v183/source.part*" | Sort-Object Name
+          if ($parts.Count -ne 12) { throw "Expected 12 source parts, got $($parts.Count)" }
+          $b64 = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
+          [IO.File]::WriteAllBytes("stockcell-build-v183/source.tar.xz", [Convert]::FromBase64String($b64))
+          New-Item -ItemType Directory -Force "stockcell-build-v183/app" | Out-Null
+          tar -xJf "stockcell-build-v183/source.tar.xz" -C "stockcell-build-v183/app"
+          if (!(Test-Path "stockcell-build-v183/app/package.json")) { throw "package.json missing after restore" }
+          Get-ChildItem "stockcell-build-v183/app"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        working-directory: stockcell-build-v183/app
+        run: npm install --no-audit --no-fund
+
+      - name: Build portable EXE
+        working-directory: stockcell-build-v183/app
+        run: npx electron-builder --win portable
+
+      - name: Verify EXE
+        shell: pwsh
+        run: |
+          $exe = "stockcell-build-v183/app/dist/StockCellDesktop_V1_83.exe"
+          if (!(Test-Path $exe)) { throw "EXE not found: $exe" }
+          $item = Get-Item $exe
+          if ($item.Length -lt 10000000) { throw "EXE unexpectedly small: $($item.Length)" }
+          $item | Format-List Name,Length,LastWriteTime
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: StockCellDesktop_V1_83_EXE
+          path: stockcell-build-v183/app/dist/StockCellDesktop_V1_83.exe
+          if-no-files-found: error
+          compression-level: 0
