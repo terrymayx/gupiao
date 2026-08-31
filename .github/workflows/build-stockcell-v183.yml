@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Restore V1.83 build source
+      - name: Restore build source
         shell: pwsh
         run: |
           $parts = Get-ChildItem "stockcell-build-v183/source.part*" | Sort-Object Name
@@ -24,69 +24,20 @@ jobs:
           [IO.File]::WriteAllBytes("stockcell-build-v183/source.tar.xz", [Convert]::FromBase64String($b64))
           New-Item -ItemType Directory -Force "stockcell-build-v183/app" | Out-Null
           tar -xJf "stockcell-build-v183/source.tar.xz" -C "stockcell-build-v183/app"
+          if (!(Test-Path "stockcell-build-v183/app/package.json")) { throw "package.json missing" }
 
-      - name: Patch portable data mode V1.84
+      - name: Patch V1.84 portable data mode
+        shell: pwsh
+        run: node stockcell-build-v183/patch-v184.js
+
+      - name: Verify patched source
         shell: pwsh
         working-directory: stockcell-build-v183/app
         run: |
-          $file = "main.js"
-          $text = Get-Content $file -Raw
-          $needle = "const { createEmbeddedEdgeBridge } = require('./edge_bridge_server');"
-          if (-not $text.Contains($needle)) { throw "main.js patch anchor missing" }
-          $block = @'
-
-// V1.84 portable data mode: keep Electron data beside the portable EXE.
-const LEGACY_APPDATA_ROOT = app.getPath('appData');
-const PORTABLE_EXECUTABLE_DIR = process.env.PORTABLE_EXECUTABLE_DIR || (app.isPackaged ? path.dirname(process.execPath) : __dirname);
-const PORTABLE_DATA_ROOT = path.join(PORTABLE_EXECUTABLE_DIR,'data');
-const PORTABLE_USER_DATA = path.join(PORTABLE_DATA_ROOT,'UserData');
-const PORTABLE_SESSION_DATA = path.join(PORTABLE_DATA_ROOT,'SessionData');
-const PORTABLE_CACHE = path.join(PORTABLE_DATA_ROOT,'Cache');
-const PORTABLE_LOGS = path.join(PORTABLE_DATA_ROOT,'Logs');
-function ensurePortableDir(dir){ fs.mkdirSync(dir,{recursive:true}); return dir; }
-function copyPortableIfMissing(src,dst){
-  if(!fs.existsSync(src)||fs.existsSync(dst))return false;
-  ensurePortableDir(path.dirname(dst));
-  fs.cpSync(src,dst,{recursive:true,errorOnExist:false,force:false});
-  return true;
-}
-function migrateLegacyPortableUserData(){
-  const legacyRoot=path.join(LEGACY_APPDATA_ROOT,'stock-cell-desktop');
-  if(!fs.existsSync(legacyRoot))return;
-  const marker=path.join(PORTABLE_DATA_ROOT,'.v184-migration-complete.json');
-  if(fs.existsSync(marker))return;
-  const copied=[];
-  try{
-    const entries=[
-      ['Local Storage',path.join(legacyRoot,'Local Storage'),path.join(PORTABLE_USER_DATA,'Local Storage')],
-      ['Preferences',path.join(legacyRoot,'Preferences'),path.join(PORTABLE_USER_DATA,'Preferences')],
-      ['window state',path.join(legacyRoot,'stock-cell-window.json'),path.join(PORTABLE_USER_DATA,'stock-cell-window.json')]
-    ];
-    for(const [label,src,dst] of entries){ if(copyPortableIfMissing(src,dst))copied.push(label); }
-    fs.writeFileSync(marker,JSON.stringify({migratedAt:new Date().toISOString(),legacyRoot,copied},null,2));
-  }catch(error){
-    try{fs.writeFileSync(path.join(PORTABLE_LOGS,'migration-error.txt'),String(error?.stack||error));}catch{}
-  }
-}
-function configurePortableDataPaths(){
-  [PORTABLE_DATA_ROOT,PORTABLE_USER_DATA,PORTABLE_SESSION_DATA,PORTABLE_CACHE,PORTABLE_LOGS].forEach(ensurePortableDir);
-  app.setPath('userData',PORTABLE_USER_DATA);
-  app.setPath('sessionData',PORTABLE_SESSION_DATA);
-  app.setPath('cache',PORTABLE_CACHE);
-  app.setPath('logs',PORTABLE_LOGS);
-  app.commandLine.appendSwitch('disk-cache-size','52428800');
-  app.commandLine.appendSwitch('media-cache-size','10485760');
-  migrateLegacyPortableUserData();
-}
-configurePortableDataPaths();
-'@
-          $text = $text.Replace($needle, $needle + $block)
-          Set-Content -Path $file -Value $text -Encoding utf8
-          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.version='1.84.0';p.description='V1.84 portable data mode';p.build.artifactName='StockCellDesktop_V1_84.${ext}';fs.writeFileSync('package.json',JSON.stringify(p,null,2));"
           node --check main.js
           node --check preload.js
           node --check edge_bridge_server.js
-          node -e "const fs=require('fs');const s=fs.readFileSync('main.js','utf8');for(const x of [\"app.setPath('userData',PORTABLE_USER_DATA)\",\"app.setPath('sessionData',PORTABLE_SESSION_DATA)\",\"disk-cache-size','52428800\",\"PORTABLE_EXECUTABLE_DIR\"])if(!s.includes(x))throw new Error('missing '+x);const p=require('./package.json');if(p.version!=='1.84.0'||p.build.artifactName!=='StockCellDesktop_V1_84.${ext}')throw new Error('package patch failed');console.log('V1.84 patch verification PASS');"
+          node -e "const p=require('./package.json');if(p.version!=='1.84.0')throw new Error('wrong version');if(p.build.artifactName!=='StockCellDesktop_V1_84.${ext}')throw new Error('wrong artifact');console.log('V1.84 source verification PASS')"
 
       - name: Setup Node
         uses: actions/setup-node@v4
