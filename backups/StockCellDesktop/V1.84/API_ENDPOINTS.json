@@ -1,0 +1,47 @@
+{
+  "version": "StockCellDesktop V1.84 / EdgeBridge V6.3.1",
+  "base_url": "http://127.0.0.1:17890",
+  "token_header": "X-StockTray-Token",
+  "public_endpoints": [
+    {"method":"GET","path":"/api/health","purpose":"bridge health"},
+    {"method":"GET","path":"/api/watchlist","purpose":"session token + shared watchlist"},
+    {"method":"GET","path":"/api/embedded-debug","purpose":"local embedded debug"}
+  ],
+  "consumer_endpoints": [
+    {"method":"GET","path":"/api/status","auth":true,"purpose":"runtime/extension/cache/queue status"},
+    {"method":"GET","path":"/api/dashboard-snapshot?codes=","auth":true,"purpose":"unified market + sectors + stocks + intraday snapshot"},
+    {"method":"GET","path":"/api/live-sectors","auth":true,"purpose":"latest sector fund-flow snapshot"},
+    {"method":"POST","path":"/api/stock-request","auth":true,"purpose":"add 6-digit A-share code to shared watchlist and create stock task"},
+    {"method":"GET","path":"/api/stock-result?request_id=","auth":true,"purpose":"stock task result"},
+    {"method":"GET","path":"/api/stock-snapshot?code=","auth":true,"purpose":"read cached stock quote"},
+    {"method":"GET","path":"/api/stock-intraday?code=","auth":true,"purpose":"read cached Tencent intraday rows"},
+    {"method":"POST","path":"/api/industry-request","auth":true,"purpose":"queue industry/board task"},
+    {"method":"GET","path":"/api/industry-result?request_id=","auth":true,"purpose":"industry task result"},
+    {"method":"POST","path":"/api/peer-request","auth":true,"purpose":"queue sector constituent ranking task"},
+    {"method":"GET","path":"/api/peer-result?request_id=","auth":true,"purpose":"sector constituent task result"},
+    {"method":"POST","path":"/api/event-request","auth":true,"purpose":"queue corporate event task"},
+    {"method":"GET","path":"/api/event-result?request_id=","auth":true,"purpose":"event task result"},
+    {"method":"POST","path":"/api/custom-stock-request","auth":true,"purpose":"queue Eastmoney stock quote fetch by 6-digit code"},
+    {"method":"POST","path":"/api/fetch-request","auth":true,"purpose":"queue allowlisted Eastmoney GET request"},
+    {"method":"GET","path":"/api/fetch-result?request_id=","auth":true,"purpose":"generic fetch task result"},
+    {"method":"GET","path":"/api/stock-debug?code=","auth":true,"purpose":"stock/watchlist/extension debug"}
+  ],
+  "extension_internal_endpoints": [
+    {"method":"POST","path":"/api/browser-data","purpose":"extension pushes grouped browser payload"},
+    {"method":"GET","path":"/api/industry-requests?limit=","purpose":"claim industry jobs"},
+    {"method":"GET","path":"/api/peer-requests?limit=","purpose":"claim peer jobs"},
+    {"method":"GET","path":"/api/event-requests?limit=","purpose":"claim event jobs"},
+    {"method":"GET","path":"/api/fetch-requests?limit=","purpose":"claim fetch jobs"},
+    {"method":"POST","path":"/api/industry-data","purpose":"return industry job result"},
+    {"method":"POST","path":"/api/peer-data","purpose":"return peer job result"},
+    {"method":"POST","path":"/api/event-data","purpose":"return event job result"},
+    {"method":"POST","path":"/api/fetch-data","purpose":"return fetch job result"},
+    {"method":"GET","path":"/api/event-wakeup?since=","purpose":"long-poll wake protocol"}
+  ],
+  "scheduler_seconds": {
+    "auction": 5,
+    "trading": 5,
+    "lunch": 30,
+    "closed": 120
+  }
+}
