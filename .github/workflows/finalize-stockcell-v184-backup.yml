@@ -1,0 +1,48 @@
+name: Finalize StockCellDesktop V1.84 Backup Assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backup-transfer/StockCellDesktop/V1.84/READY'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.event.head_commit.message != 'backup: finalize V1.84 interface packages [skip ci]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild interface packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC='backup-transfer/StockCellDesktop/V1.84'
+          DST='backups/StockCellDesktop/V1.84'
+          mkdir -p "$DST"
+
+          cat "$SRC"/edgebridge/part* | base64 -d > "$DST/EdgeBridge_Current_API_Package_v6_3_1.zip"
+          cat "$SRC"/extension/part* | base64 -d > "$DST/StockTray_Edge_Extension_V1_1_8.zip"
+
+          echo 'b881c16413311bc25b614b4685767c7692cf76018011a98ed3608c54f7438e28  backups/StockCellDesktop/V1.84/EdgeBridge_Current_API_Package_v6_3_1.zip' | sha256sum -c -
+          echo 'cc7b51f6c50aae22fcb7de530452a95b4c9d786994f9af6cc55289bdbeb95727  backups/StockCellDesktop/V1.84/StockTray_Edge_Extension_V1_1_8.zip' | sha256sum -c -
+
+          unzip -t "$DST/EdgeBridge_Current_API_Package_v6_3_1.zip"
+          unzip -t "$DST/StockTray_Edge_Extension_V1_1_8.zip"
+
+      - name: Commit finalized backup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add backups/StockCellDesktop/V1.84/EdgeBridge_Current_API_Package_v6_3_1.zip
+          git add backups/StockCellDesktop/V1.84/StockTray_Edge_Extension_V1_1_8.zip
+          git rm -r backup-transfer/StockCellDesktop/V1.84
+          git commit -m 'backup: finalize V1.84 interface packages [skip ci]'
+          git push origin HEAD:main
