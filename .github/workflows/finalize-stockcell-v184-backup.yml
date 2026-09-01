@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   finalize:
-    if: github.event.head_commit.message != 'backup: finalize V1.84 interface packages [skip ci]'
+    if: "${{ github.event.head_commit.message != 'backup: finalize V1.84 interface packages [skip ci]' }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
