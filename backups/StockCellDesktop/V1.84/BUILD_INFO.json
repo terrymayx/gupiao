@@ -1,0 +1,35 @@
+{
+  "product": "StockCellDesktop",
+  "version": "1.84.0",
+  "backup_date": "2026-09-01",
+  "node_min": "20",
+  "electron": "^38.0.0",
+  "electron_builder": "^26.0.12",
+  "windows_target": "portable",
+  "artifact_name": "StockCellDesktop_V1_84.${ext}",
+  "asar": true,
+  "runtime_files": [
+    "main.js",
+    "preload.js",
+    "edge_bridge_server.js",
+    "stock_cell_desktop.html",
+    "assets/tray.ico"
+  ],
+  "edge_bridge": {
+    "host": "127.0.0.1",
+    "port": 17890,
+    "api_reference": "V6.3.1"
+  },
+  "edge_extension": "1.1.8",
+  "portable_data_dirs": ["data/UserData","data/SessionData","data/Cache","data/Logs"],
+  "cache_limits_bytes": {
+    "disk": 52428800,
+    "media": 10485760
+  },
+  "scheduler_seconds": {
+    "auction": 5,
+    "trading": 5,
+    "lunch": 30,
+    "closed": 120
+  }
+}
